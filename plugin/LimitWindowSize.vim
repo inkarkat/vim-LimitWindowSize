@@ -63,20 +63,19 @@ function! s:LimitWindowWidth(width)
     let l:winNr = winnr()
     if s:LocatePaddingWindow()
 	if l:paddingWindowWidth > 0
-	    let l:absPaddingWindowWidth = l:paddingWindowWidth
-	    let l:resizeDirection = '>'
+	    " Must increase existing padding window. 
+	    execute l:paddingWindowWidth . 'wincmd >'
 	elseif l:paddingWindowWidth < 0
-	    let l:absPaddingWindowWidth = - l:paddingWindowWidth
-	    let l:resizeDirection = '<'
+	    if - l:paddingWindowWidth >= winwidth(0)
+		" The entire padding window gets eaten by the increased window
+		" size, so remove it. 
+		wincmd c
+	    else
+		" Reduce width of padding window. 
+		execute - l:paddingWindowWidth . 'wincmd <'
+	    endif
 	else
 	    throw 'Assert: paddingWindowWidth != 0'
-	endif
-	if - l:paddingWindowWidth >= winwidth(0)
-	    " The entire padding window gets eaten by the increased window
-	    " size, so remove it. 
-	    wincmd c
-	else
-	    execute l:absPaddingWindowWidth . 'wincmd ' . l:resizeDirection
 	endif
     elseif l:paddingWindowWidth > 0
 	execute l:winNr . 'wincmd w'

@@ -19,6 +19,34 @@ function! s:GetNetWindowWidth()
     return winwidth(0) - &l:foldcolumn - (&l:number ? &l:numberwidth : 0)
 endfunction
 
+function! s:LocatePaddingWindow()
+    let l:prevWinNr = -2
+    let l:curWinNr = -1
+    while l:prevWinNr != l:curWinNr
+	wincmd l
+	let l:prevWinNr = l:curWinNr
+	let l:curWinNr = winnr()
+	if bufname('') =~# '^\[Padding\( \d\+\)\?\]$'
+	    return 1
+	endif
+    endwhile
+    return 0
+endfunction
+
+function! s:CreatePaddingWindow(width)
+    " TODO: Check for existing [Padding] (E95) and append number to make unique. 
+    execute 'belowright ' . a:width . 'vnew +file\ [Padding]' 
+    setlocal filetype=
+    setlocal nonumber
+    setlocal bufhidden=delete
+    setlocal buftype=nofile
+    setlocal noswapfile
+    setlocal nobuflisted
+    setlocal nomodifiable
+    setlocal nocursorline
+    setlocal nocursorcolumn
+endfunction
+
 function! s:LimitWindowWidth(width)
     if a:width <= 0
 	echohl Error
@@ -27,21 +55,34 @@ function! s:LimitWindowWidth(width)
 	return
     endif
 
-    let l:winNr = winnr()
     let l:paddingWindowWidth = s:GetNetWindowWidth() - a:width - 1
-    if l:paddingWindowWidth > 0
-	execute 'belowright ' . l:paddingWindowWidth . 'vnew +file\ [Padding]' 
-	setlocal filetype=
-	setlocal nonumber
-	setlocal bufhidden=delete
-	setlocal buftype=nofile
-	setlocal noswapfile
-	setlocal nobuflisted
-	setlocal nomodifiable
-	setlocal nocursorline
-	setlocal nocursorcolumn
-	wincmd p
+    if l:paddingWindowWidth == 0
+	return
     endif
+
+    let l:winNr = winnr()
+    if s:LocatePaddingWindow()
+	if l:paddingWindowWidth > 0
+	    let l:absPaddingWindowWidth = l:paddingWindowWidth
+	    let l:resizeDirection = '>'
+	elseif l:paddingWindowWidth < 0
+	    let l:absPaddingWindowWidth = - l:paddingWindowWidth
+	    let l:resizeDirection = '<'
+	else
+	    throw 'Assert: paddingWindowWidth != 0'
+	endif
+	if - l:paddingWindowWidth >= winwidth(0)
+	    " The entire padding window gets eaten by the increased window
+	    " size, so remove it. 
+	    wincmd c
+	else
+	    execute l:absPaddingWindowWidth . 'wincmd ' . l:resizeDirection
+	endif
+    elseif l:paddingWindowWidth > 0
+	execute l:winNr . 'wincmd w'
+	call s:CreatePaddingWindow(l:paddingWindowWidth)
+    endif
+    execute l:winNr . 'wincmd w'
 endfunction
 
 command! -nargs=1 LimitWindowWidth call <SID>LimitWindowWidth(<f-args>)

@@ -27,6 +27,7 @@ function! s:LimitWindowWidth(width)
 	return
     endif
 
+    let l:winNr = winnr()
     let l:paddingWindowWidth = s:GetNetWindowWidth() - a:width - 1
     if l:paddingWindowWidth > 0
 	execute 'belowright ' . l:paddingWindowWidth . 'vnew +file\ [Padding]' 

@@ -13,6 +13,8 @@ if exists('g:loaded_LimitWindowSize') || (v:version < 700)
 endif
 let g:loaded_LimitWindowSize = 1
 
+" This global setting is about the minimum width in the _current_ buffer. 
+" Without this setting, jumping into a padding buffer could increase its width. 
 set winwidth=1
 
 function! s:GetNetWindowWidth()
@@ -32,6 +34,12 @@ function! s:HasPaddingWindow()
 endfunction
 
 function! s:CreatePaddingWindow(width)
+    if a:width < 2
+	" The vertical window separator (|) takes up one space, and the net
+	" width must be at least 1. Smaller widths cannot be created. 
+	return
+    endif
+
     " The name of the padding buffer must be unique to avoid an E95 error. 
     let l:paddingName = '[Padding]'
     let l:paddingCnt = 0
@@ -40,8 +48,11 @@ function! s:CreatePaddingWindow(width)
 	let l:paddingName = '[Padding' . l:paddingCnt . ']'
     endwhile
 
-    execute 'belowright ' . a:width . 'vnew +file\ ' . l:paddingName
+    execute 'belowright ' . a:width - 1 . 'vnew +file\ ' . l:paddingName
+
+    " The padding buffer is read-only and empty. 
     setlocal filetype=nofile
+    " Show just the padding name in the statusline, no line numbers etc. 
     setlocal statusline=%f
     setlocal nonumber
     setlocal bufhidden=delete
@@ -61,7 +72,8 @@ function! s:LimitWindowWidth(width)
 	return
     endif
 
-    let l:paddingWindowWidth = s:GetNetWindowWidth() - a:width - 1
+    let l:paddingWindowWidth = s:GetNetWindowWidth() - a:width
+echomsg "Net width=" . s:GetNetWindowWidth()
     if l:paddingWindowWidth == 0
 	return
     endif

@@ -48,12 +48,11 @@ function! s:CreatePaddingWindow(width)
 	let l:paddingName = '[Padding' . l:paddingCnt . ']'
     endwhile
 
-    execute 'belowright ' . a:width - 1 . 'vnew +file\ ' . l:paddingName
+    execute 'belowright ' . (a:width - 1) . 'vnew +file\ ' . l:paddingName
 
     " The padding buffer is read-only and empty. 
     setlocal filetype=nofile
-    " Show just the padding name in the statusline, no line numbers etc. 
-    setlocal statusline=%f
+    setlocal statusline=%f  " Show just the padding name in the statusline, no line numbers etc.  
     setlocal nonumber
     setlocal bufhidden=delete
     setlocal buftype=nofile
@@ -73,7 +72,6 @@ function! s:LimitWindowWidth(width)
     endif
 
     let l:paddingWindowWidth = s:GetNetWindowWidth() - a:width
-echomsg "Net width=" . s:GetNetWindowWidth()
     if l:paddingWindowWidth == 0
 	return
     endif
@@ -105,4 +103,8 @@ endfunction
 
 command! -nargs=1 LimitWindowWidth call <SID>LimitWindowWidth(<f-args>)
 
+"****D
+function! NetWidth()
+    return s:GetNetWindowWidth()
+endfunction
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

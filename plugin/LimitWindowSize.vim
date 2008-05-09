@@ -13,30 +13,36 @@ if exists('g:loaded_LimitWindowSize') || (v:version < 700)
 endif
 let g:loaded_LimitWindowSize = 1
 
+set winwidth=1
+
 function! s:GetNetWindowWidth()
     " TODO: signs column
     " TODO: numberwidth is only the minimal width, can be more if buffer has many lines
     return winwidth(0) - &l:foldcolumn - (&l:number ? &l:numberwidth : 0)
 endfunction
 
-function! s:LocatePaddingWindow()
-    let l:prevWinNr = -2
-    let l:curWinNr = -1
-    while l:prevWinNr != l:curWinNr
-	wincmd l
-	let l:prevWinNr = l:curWinNr
-	let l:curWinNr = winnr()
-	if bufname('') =~# '^\[Padding\( \d\+\)\?\]$'
-	    return 1
-	endif
-    endwhile
-    return 0
+function! s:HasPaddingWindow()
+    wincmd l
+    if bufname('') =~# '^\[Padding\%(\d\+\)\?\]$'
+	return 1
+    else
+	wincmd p    " Return to original window. 
+	return 0
+    endif
 endfunction
 
 function! s:CreatePaddingWindow(width)
-    " TODO: Check for existing [Padding] (E95) and append number to make unique. 
-    execute 'belowright ' . a:width . 'vnew +file\ [Padding]' 
-    setlocal filetype=
+    " The name of the padding buffer must be unique to avoid an E95 error. 
+    let l:paddingName = '[Padding]'
+    let l:paddingCnt = 0
+    while bufexists(l:paddingName)
+	let l:paddingCnt += 1
+	let l:paddingName = '[Padding' . l:paddingCnt . ']'
+    endwhile
+
+    execute 'belowright ' . a:width . 'vnew +file\ ' . l:paddingName
+    setlocal filetype=nofile
+    setlocal statusline=%f
     setlocal nonumber
     setlocal bufhidden=delete
     setlocal buftype=nofile
@@ -61,7 +67,7 @@ function! s:LimitWindowWidth(width)
     endif
 
     let l:winNr = winnr()
-    if s:LocatePaddingWindow()
+    if s:HasPaddingWindow()
 	if l:paddingWindowWidth > 0
 	    " Must increase existing padding window. 
 	    execute l:paddingWindowWidth . 'wincmd >'
@@ -78,9 +84,10 @@ function! s:LimitWindowWidth(width)
 	    throw 'Assert: paddingWindowWidth != 0'
 	endif
     elseif l:paddingWindowWidth > 0
-	execute l:winNr . 'wincmd w'
 	call s:CreatePaddingWindow(l:paddingWindowWidth)
     endif
+
+    " Return to original window. 
     execute l:winNr . 'wincmd w'
 endfunction
 

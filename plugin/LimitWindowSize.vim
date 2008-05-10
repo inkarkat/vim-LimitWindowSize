@@ -1,6 +1,6 @@
 " LimitWindowSize.vim: Reduce the current window size by placing an empty padding window next to it. 
-" LimitWindowSize.vim: Reduce the curreXt window size by placing an empty paddiX
-" LimitWindowSize.vim: Reduce the curreX
+"                                      X                                       X
+"                                      X
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
@@ -24,11 +24,13 @@ function! s:GetNetWindowWidth()
 endfunction
 
 function! s:HasPaddingWindow()
+    let l:winNr = winnr()
     wincmd l
     if bufname('') =~# '^\[Padding\%(\d\+\)\?\]$'
 	return 1
     else
-	wincmd p    " Return to original window. 
+	" Return to original window. 
+	execute l:winNr . 'wincmd w'
 	return 0
     endif
 endfunction

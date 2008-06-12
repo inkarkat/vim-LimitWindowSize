@@ -50,7 +50,7 @@ function! s:CreatePaddingWindow(width)
 	let l:paddingName = '[Padding' . l:paddingCnt . ']'
     endwhile
 
-    execute 'belowright ' . (a:width - 1) . 'vnew +file\ ' . l:paddingName
+    silent execute 'belowright ' . (a:width - 1) . 'vnew +file\ ' . l:paddingName
 
     " The padding buffer is read-only and empty. 
     setlocal filetype=nofile
@@ -63,6 +63,13 @@ function! s:CreatePaddingWindow(width)
     setlocal nomodifiable
     setlocal nocursorline
     setlocal nocursorcolumn
+    " Note: Somehow, the :file command needs to be applied once during opening
+    " and once again at the end. Otherwise (when :LimitWindowWidth is executed
+    " from a ftplugin), the filename isn't set correctly (it is listed as ""),
+    " causing the netrw plugin to take over the padding buffer. 
+    " Note: :silent is used to suppress the duplicate "[Padding] 1 line" message
+    " which may result from the duplicate :file command. 
+    silent execute 'file ' . l:paddingName
 endfunction
 
 function! s:LimitWindowWidth(width)

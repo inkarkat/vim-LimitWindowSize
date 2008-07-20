@@ -5,6 +5,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	002	13-Jun-2008	Added -bar to :LimitWindowWidth. 
 "	001	10-May-2008	file creation
 
 " Avoid installing twice or when in unsupported VIM version. 
@@ -110,7 +111,7 @@ function! s:LimitWindowWidth(width)
     execute l:winNr . 'wincmd w'
 endfunction
 
-command! -nargs=1 LimitWindowWidth call <SID>LimitWindowWidth(<f-args>)
+command! -bar -nargs=1 LimitWindowWidth call <SID>LimitWindowWidth(<f-args>)
 
 "****D
 function! NetWidth()

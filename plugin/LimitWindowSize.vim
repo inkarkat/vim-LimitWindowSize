@@ -75,7 +75,7 @@ endfunction
 
 function! s:LimitWindowWidth(width)
     if a:width <= 0
-	echohl Error
+	echohl ErrorMsg
 	echomsg 'Must specify positive window width!'
 	echohl None
 	return

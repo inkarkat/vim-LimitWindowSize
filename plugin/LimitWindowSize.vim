@@ -111,10 +111,15 @@ function! s:LimitWindowWidth(width)
     execute l:winNr . 'wincmd w'
 endfunction
 
+" :LimitWindowWidth <width>
+"			Limit the window width of the current window by placing
+"			an empty padding window to the right. If there already
+"			is a padding window, its size is adapted according to
+"			<width>, or even removed if <width> is so large that no
+"			padding is needed. 
 command! -bar -nargs=1 LimitWindowWidth call <SID>LimitWindowWidth(<f-args>)
 
-"****D
-function! NetWidth()
-    return s:GetNetWindowWidth()
-endfunction
+"****D function! NetWidth()
+"****D     return s:GetNetWindowWidth()
+"****D endfunction
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

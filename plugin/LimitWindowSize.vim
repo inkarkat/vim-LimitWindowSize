@@ -5,6 +5,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	003	16-Jan-2009	Now setting v:errmsg on errors. 
 "	002	13-Jun-2008	Added -bar to :LimitWindowWidth. 
 "	001	10-May-2008	file creation
 
@@ -76,7 +77,8 @@ endfunction
 function! s:LimitWindowWidth(width)
     if a:width <= 0
 	echohl ErrorMsg
-	echomsg 'Must specify positive window width!'
+	let v:errmsg = 'Must specify positive window width!'
+	echomsg v:errmsg
 	echohl None
 	return
     endif
@@ -101,7 +103,7 @@ function! s:LimitWindowWidth(width)
 		execute - l:paddingWindowWidth . 'wincmd <'
 	    endif
 	else
-	    throw 'Assert: paddingWindowWidth != 0'
+	    throw 'ASSERT: l:paddingWindowWidth != 0'
 	endif
     elseif l:paddingWindowWidth > 0
 	call s:CreatePaddingWindow(l:paddingWindowWidth)
@@ -111,11 +113,11 @@ function! s:LimitWindowWidth(width)
     execute l:winNr . 'wincmd w'
 endfunction
 
-" :LimitWindowWidth <width>
+" :LimitWindowWidth {width}
 "			Limit the window width of the current window by placing
 "			an empty padding window to the right. If there already
 "			is a padding window, its size is adapted according to
-"			<width>, or even removed if <width> is so large that no
+"			{width}, or even removed if {width} is so large that no
 "			padding is needed. 
 command! -bar -nargs=1 LimitWindowWidth call <SID>LimitWindowWidth(<f-args>)
 

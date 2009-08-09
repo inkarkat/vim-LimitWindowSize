@@ -5,6 +5,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	004	25-Jun-2009	Now using :noautocmd to avoid unnecessary
+"				processing while searching for padding window. 
 "	003	16-Jan-2009	Now setting v:errmsg on errors. 
 "	002	13-Jun-2008	Added -bar to :LimitWindowWidth. 
 "	001	10-May-2008	file creation
@@ -27,12 +29,12 @@ endfunction
 
 function! s:HasPaddingWindow()
     let l:winNr = winnr()
-    wincmd l
+    noautocmd wincmd l
     if bufname('') =~# '^\[Padding\%(\d\+\)\?\]$'
 	return 1
     else
 	" Return to original window. 
-	execute l:winNr . 'wincmd w'
+	execute 'noautocmd' l:winNr . 'wincmd w'
 	return 0
     endif
 endfunction

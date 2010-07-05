@@ -1,10 +1,14 @@
 " LimitWindowSize.vim: Reduce the current window size by placing an empty padding window next to it. 
 "                                      X                                       X
 "                                      X
+" DEPENDENCIES:
+"   - ingowindow.vim autoload script. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	006	02-Dec-2009	Factored out s:NetWindowWidth() into
+"				ingowindow.vim to allow reuse by other plugins. 
 "	005	10-Aug-2009	BF: In a maximized GVIM, the creation of the
 "				padding window may lead to a reduction of
 "				'columns' to make space for a second scrollbar. 
@@ -25,12 +29,6 @@ let g:loaded_LimitWindowSize = 1
 " This global setting is about the minimum width in the _current_ buffer. 
 " Without this setting, jumping into a padding buffer could increase its width. 
 set winwidth=1
-
-function! s:GetNetWindowWidth()
-    " TODO: signs column
-    " TODO: numberwidth is only the minimal width, can be more if buffer has many lines
-    return winwidth(0) - &l:foldcolumn - (&l:number ? &l:numberwidth : 0)
-endfunction
 
 function! s:HasPaddingWindow()
     let l:winNr = winnr()
@@ -92,7 +90,7 @@ function! s:LimitWindowWidth( width )
 	return
     endif
 
-    let l:paddingWindowWidth = s:GetNetWindowWidth() - a:width
+    let l:paddingWindowWidth = ingowindow#NetWindowWidth() - a:width
     if l:paddingWindowWidth == 0
 	return
     endif

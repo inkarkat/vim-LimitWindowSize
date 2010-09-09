@@ -7,6 +7,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	007	06-Jul-2010	ENH: {width} can now be omitted, falls back to
+"				'textwidth' or 80. 
 "	006	02-Dec-2009	Factored out s:NetWindowWidth() into
 "				ingowindow.vim to allow reuse by other plugins. 
 "	005	10-Aug-2009	BF: In a maximized GVIM, the creation of the
@@ -81,8 +83,9 @@ function! s:CreatePaddingWindow( width )
     return 1
 endfunction
 
-function! s:LimitWindowWidth( width )
-    if a:width <= 0
+function! s:LimitWindowWidth( ... )
+    let l:width = (a:0 ? a:1 : (&textwidth > 0 ? &textwidth : 80))
+    if l:width <= 0
 	echohl ErrorMsg
 	let v:errmsg = 'Must specify positive window width!'
 	echomsg v:errmsg
@@ -90,7 +93,7 @@ function! s:LimitWindowWidth( width )
 	return
     endif
 
-    let l:paddingWindowWidth = ingowindow#NetWindowWidth() - a:width
+    let l:paddingWindowWidth = ingowindow#NetWindowWidth() - l:width
     if l:paddingWindowWidth == 0
 	return
     endif
@@ -131,16 +134,16 @@ function! s:LimitWindowWidth( width )
 	" To fix this, we recursively invoke the function again, so that it
 	" re-checks the current window width and in case of a discrepancy
 	" reduces the width of the padding window. 
-	call s:LimitWindowWidth( a:width )
+	call s:LimitWindowWidth( l:width )
     endif
 endfunction
 
-" :LimitWindowWidth {width}
+" :LimitWindowWidth [{width}]
 "			Limit the window width of the current window by placing
 "			an empty padding window to the right. If there already
 "			is a padding window, its size is adapted according to
-"			{width}, or even removed if {width} is so large that no
-"			padding is needed. 
-command! -bar -nargs=1 LimitWindowWidth call <SID>LimitWindowWidth(<f-args>)
+"			'textwidth' / {width}, or even removed if the width is
+"			so large that no padding is needed. 
+command! -bar -nargs=? LimitWindowWidth call <SID>LimitWindowWidth(<f-args>)
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

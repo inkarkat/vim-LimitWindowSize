@@ -7,6 +7,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"   1.00.008	10-Sep-2010	ENH: Now considers 'relativenumber' setting
+"				introduced in Vim 7.3. 
 "	007	06-Jul-2010	ENH: {width} can now be omitted, falls back to
 "				'textwidth' or 80. 
 "	006	02-Dec-2009	Factored out s:NetWindowWidth() into
@@ -65,6 +67,7 @@ function! s:CreatePaddingWindow( width )
     setlocal filetype=nofile
     setlocal statusline=%f  " Show just the padding name in the statusline, no line numbers etc.  
     setlocal nonumber
+    if exists('+relativenumber') | setlocal norelativenumber | endif
     setlocal bufhidden=delete
     setlocal buftype=nofile
     setlocal noswapfile

@@ -1,0 +1,4 @@
+autoload/ingowindow.vim
+autoload/LimitWindowSize.vim
+plugin/LimitWindowSize.vim
+doc/LimitWindowSize.txt

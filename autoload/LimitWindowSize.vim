@@ -2,6 +2,7 @@
 "                                      X                                       X
 "                                      X
 " DEPENDENCIES:
+"   - ingo/msg.vim autoload script
 "   - ingo/window/dimensions.vim autoload script
 "
 " Copyright: (C) 2010-2013 Ingo Karkat
@@ -10,6 +11,12 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.01.003	25-Oct-2013	Use ingo/msg.vim.
+"				Add workaround for when a :LimitWindowWidth
+"				command is issued from a still minimized GVIM in
+"				the process of restoring its window. The check
+"				for the window width then needs to be delayed
+"				until after the VimResized event.
 "   1.01.002	08-Apr-2013	Move ingowindow.vim functions into ingo-library.
 "   1.00.001	11-Sep-2010	file creation
 
@@ -68,10 +75,21 @@ endfunction
 function! LimitWindowSize#LimitWindowWidth( ... )
     let l:width = (a:0 ? a:1 : (&textwidth > 0 ? &textwidth : 80))
     if l:width <= 0
-	echohl ErrorMsg
-	let v:errmsg = 'Must specify positive window width!'
-	echomsg v:errmsg
-	echohl None
+	call ingo#msg#ErrorMsg('Must specify positive window width!')
+	return
+    endif
+
+    if &columns <= 16
+	" With GVIM on Windows in minimized fullscreen mode (and a remote
+	" command that restores the GVIM window, edits a file, whose ftplugin
+	" executes :LimitWindowWidth), the value of 'columns' is 16, and
+	" LimitWindow's check aborts the limiting. In this case, we need to
+	" re-schedule the command for when GVIM has been restored to its
+	" maximized state. But check for the same window and buffer in case the
+	" VimResized event isn't thrown shortly thereafter.
+	augroup LimitWindowSizeDelayedLimit
+	    execute printf('autocmd! VimResized * if winnr() == %d && bufnr("") == %d | call LimitWindowSize#LimitWindowWidth(%d) | endif | autocmd! LimitWindowSizeDelayedLimit', winnr(), bufnr(''), l:width)
+	augroup END
 	return
     endif
 

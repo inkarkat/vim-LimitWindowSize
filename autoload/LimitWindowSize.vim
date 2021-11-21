@@ -5,12 +5,13 @@
 "   - ingo/msg.vim autoload script
 "   - ingo/window/dimensions.vim autoload script
 "
-" Copyright: (C) 2010-2013 Ingo Karkat
+" Copyright: (C) 2010-2015 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.02.004	07-Feb-2015	ENH: Keep previous (last accessed) window.
 "   1.01.003	25-Oct-2013	Use ingo/msg.vim.
 "				Add workaround for when a :LimitWindowWidth
 "				command is issued from a still minimized GVIM in
@@ -98,7 +99,8 @@ function! LimitWindowSize#LimitWindowWidth( ... )
 	return
     endif
 
-    let l:winNr = winnr()
+    let l:originalWinNr = winnr()
+    let l:previousWinNr = winnr('#') ? winnr('#') : 1
     let l:isCreatedPaddingWindow = 0
     if s:HasPaddingWindow()
 	if l:paddingWindowWidth > 0
@@ -120,8 +122,8 @@ function! LimitWindowSize#LimitWindowWidth( ... )
 	let l:isCreatedPaddingWindow = s:CreatePaddingWindow(l:paddingWindowWidth)
     endif
 
-    " Return to original window.
-    execute l:winNr . 'wincmd w'
+    execute l:previousWinNr . 'wincmd w'
+    execute l:originalWinNr . 'wincmd w'
 
     if has('gui_running') && l:isCreatedPaddingWindow
 	" If a padding window has been created, there may now be an additional

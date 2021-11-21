@@ -70,6 +70,9 @@ IDEAS						       *LimitWindowSize-ideas*
 ==============================================================================
 HISTORY						     *LimitWindowSize-history*
 
+1.02	RELEASEME
+- ENH: Keep previous (last accessed) window.
+
 1.01	29-Nov-2013
 - Add workaround for when a :LimitWindowWidth command is issued from a still
   minimized GVIM in the process of restoring its window. The check for the
@@ -84,7 +87,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2010-2013 Ingo Karkat
+Copyright: (C) 2010-2015 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
